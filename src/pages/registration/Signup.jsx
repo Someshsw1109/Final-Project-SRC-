@@ -8,7 +8,6 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/
 import toast from "react-hot-toast";
 import Loader from "../../components/loader/Loader";
 
-
 const Signup = () => {
     const context = useContext(myContext);
     const { loading, setLoading } = context;
@@ -25,8 +24,8 @@ const Signup = () => {
     });
 
     /**========================================================================
- *                          User Signup Function
- *========================================================================**/
+     *                          User Signup Function
+     *========================================================================**/
     const userSignupFunction = async () => {
         // Validation
         if (userSignup.name === "" || userSignup.email === "" || userSignup.password === "") {
@@ -67,6 +66,7 @@ const Signup = () => {
                 name: "",
                 email: "",
                 password: "",
+                role: "user"
             });
 
             toast.success("Signup Successfully");
@@ -78,6 +78,7 @@ const Signup = () => {
             setLoading(false);
         }
     };
+
     return (
         <div className='flex justify-center items-center h-screen'>
             {loading && <Loader />}
@@ -137,6 +138,23 @@ const Signup = () => {
                         }}
                         className='bg-pink-50 border border-pink-200 px-2 py-2 w-96 rounded-md outline-none placeholder-pink-200'
                     />
+                </div>
+
+                {/* Input Four (Role Selection) */}
+                <div className="mb-5">
+                    <select
+                        value={userSignup.role}
+                        onChange={(e) => {
+                            setUserSignup({
+                                ...userSignup,
+                                role: e.target.value
+                            });
+                        }}
+                        className='bg-pink-50 border border-pink-200 px-2 py-2 w-96 rounded-md outline-none text-pink-500 font-bold'
+                    >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
                 </div>
 
                 {/* Signup Button  */}
