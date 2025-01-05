@@ -19,7 +19,11 @@ mongoose.connect(MONGO, { useNewUrlParser: true, useUnifiedTopology: true })
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: 'https://final-project-src.vercel.app', // Your Vercel domain
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
+  }));
 
 
 var razorpay = new Razorpay({
