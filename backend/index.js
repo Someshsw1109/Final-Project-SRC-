@@ -23,7 +23,9 @@ app.use(cors({
     origin: 'https://final-project-src.vercel.app', // Your Vercel domain
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
-  }));
+}));
+
+
 
 
 var razorpay = new Razorpay({
@@ -31,7 +33,7 @@ var razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 
 });
-console.log(razorpay,"razorpay from server.js")
+console.log(razorpay, "razorpay from server.js")
 
 app.post("/create-order", async (req, res) => {
     try {
