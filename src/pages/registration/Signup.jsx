@@ -34,9 +34,10 @@ const Signup = () => {
      *                          Phone Verification
     *========================================================================**/
     const setupRecaptcha = () => {
+        // Ensure that RecaptchaVerifier is correctly initialized
         window.recaptchaVerifier = new RecaptchaVerifier(
             "recaptcha-container",
-            { size: "invisible" },
+            { size: "invisible", callback: (response) => {} },
             auth
         );
     };
@@ -51,6 +52,10 @@ const Signup = () => {
             setupRecaptcha();
             const appVerifier = window.recaptchaVerifier;
             const fullPhoneNumber = `${userSignup.countryCode}${userSignup.phone}`;
+            
+            // Debugging log
+            console.log("Sending OTP to:", fullPhoneNumber);
+
             const result = await signInWithPhoneNumber(auth, fullPhoneNumber, appVerifier);
             setConfirmationResult(result);
             setShowOtpInput(true);
@@ -62,6 +67,11 @@ const Signup = () => {
     };
 
     const verifyOtp = async () => {
+        if (otp.length === 0) {
+            toast.error("Please enter the OTP");
+            return;
+        }
+
         try {
             await confirmationResult.confirm(otp);
             toast.success("Phone number verified successfully");
