@@ -60,7 +60,13 @@ const Login = () => {
                 }
                 let user;
                 QuerySnapshot.forEach((doc) => (user = doc.data()));
+
+                // Store user UID in localStorage
+                localStorage.setItem("userUID", users.user.uid);
+
+                // Store user data in localStorage
                 localStorage.setItem("users", JSON.stringify(user));
+
                 setUserLogin({ email: "", password: "" });
                 toast.success("Login Successful");
                 setLoading(false);
@@ -126,7 +132,13 @@ const Login = () => {
                 }
                 let user;
                 QuerySnapshot.forEach((doc) => (user = doc.data()));
+
+                // Store user UID in localStorage
+                localStorage.setItem("userUID", result.user.uid);
+
+                // Store user data in localStorage
                 localStorage.setItem("users", JSON.stringify(user));
+
                 setUserLogin({ phone: "", countryCode: "+1" });
                 setOtp("");
                 toast.success("Login Successful");
@@ -143,6 +155,17 @@ const Login = () => {
             console.error("OTP verification failed:", error);
             toast.error("Invalid OTP. Please try again.");
         }
+    };
+
+    /**========================================================================
+     *                          Logout Function
+    *========================================================================**/
+    const logout = () => {
+        // Clear user data from localStorage on logout
+        localStorage.removeItem("users");
+        localStorage.removeItem("userUID");
+        toast.success("Logout Successful");
+        navigate("/login");
     };
 
     return (
@@ -267,6 +290,15 @@ const Login = () => {
                     <h2 className="text-black">
                         Don't have an account? <Link className="text-pink-500 font-bold" to="/signup">Signup</Link>
                     </h2>
+                </div>
+
+                <div className="mt-3">
+                    <button
+                        onClick={logout}
+                        className="bg-gray-500 hover:bg-gray-600 text-white text-center py-2 font-bold rounded-md"
+                    >
+                        Logout
+                    </button>
                 </div>
             </div>
         </div>
