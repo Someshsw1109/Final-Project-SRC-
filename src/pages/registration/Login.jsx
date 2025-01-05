@@ -17,13 +17,13 @@ const Login = () => {
     // User Login State 
     const [userLogin, setUserLogin] = useState({
         email: "",
-        password: ""
+        password: "",
+        role: "user", // Default role is user
     });
 
     /**========================================================================
      *                          User Login Function 
     *========================================================================**/
-
     const userLoginFunction = async () => {
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,12 +42,6 @@ const Login = () => {
         try {
             const users = await signInWithEmailAndPassword(auth, userLogin.email, userLogin.password);
 
-            //if (!users.user.emailVerified) {
-            //    setLoading(false);
-            //    toast.error("Please verify your email before logging in.");
-            //    return;
-            //}
-
             try {
                 const q = query(
                     collection(fireDB, "user"),
@@ -64,21 +58,26 @@ const Login = () => {
                     localStorage.setItem("users", JSON.stringify(user));
                     setUserLogin({
                         email: "",
-                        password: ""
+                        password: "",
+                        role: "user", // Reset role to default
                     });
                     toast.success("Login Successful");
                     setLoading(false);
-                    if(user.role === "user") {
+                    
+                    // Navigate based on role
+                    if (user.role === "user") {
                         navigate('/user-dashboard');
-                    } else {
+                    } else if (user.role === "admin") {
                         navigate('/admin-dashboard');
+                    } else {
+                        toast.error("Invalid role assigned");
                     }
                 }, (error) => {
                     console.error("Error fetching user data:", error);
                     setLoading(false);
                     toast.error("Error fetching user data");
                 });
-                
+
                 // Clean up the listener when the component unmounts
                 return () => unsubscribe();
             } catch (error) {
@@ -91,7 +90,7 @@ const Login = () => {
             setLoading(false);
             toast.error(`Login Failed: ${error.message}`);
         }
-    }
+    };
 
     return (
         <div className='flex justify-center items-center h-screen'>
@@ -106,7 +105,7 @@ const Login = () => {
                     </h2>
                 </div>
 
-                {/* Input One  */}
+                {/* Input One (Email) */}
                 <div className="mb-3">
                     <input
                         type="email"
@@ -117,14 +116,14 @@ const Login = () => {
                             setUserLogin({
                                 ...userLogin,
                                 email: e.target.value
-                            })
+                            });
                         }}
                         className='bg-pink-50 border border-pink-200 px-2 py-2 w-96 rounded-md outline-none placeholder-pink-200'
                     />
                 </div>
 
-                {/* Input Two  */}
-                <div className="mb-5">
+                {/* Input Two (Password) */}
+                <div className="mb-3">
                     <input
                         type="password"
                         placeholder='Password'
@@ -133,13 +132,30 @@ const Login = () => {
                             setUserLogin({
                                 ...userLogin,
                                 password: e.target.value
-                            })
+                            });
                         }}
                         className='bg-pink-50 border border-pink-200 px-2 py-2 w-96 rounded-md outline-none placeholder-pink-200'
                     />
                 </div>
 
-                {/* Login Button  */}
+                {/* Input Three (Role Selection) */}
+                <div className="mb-5">
+                    <select
+                        value={userLogin.role}
+                        onChange={(e) => {
+                            setUserLogin({
+                                ...userLogin,
+                                role: e.target.value
+                            });
+                        }}
+                        className='bg-pink-50 border border-pink-200 px-2 py-2 w-96 rounded-md outline-none text-pink-500 font-bold'
+                    >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                {/* Login Button */}
                 <div className="mb-5">
                     <button
                         type='button'
