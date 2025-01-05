@@ -111,6 +111,9 @@ const Signup = () => {
             const userReference = collection(fireDB, "user");
             await addDoc(userReference, user);
 
+            // Save user data to localStorage
+            localStorage.setItem("users", JSON.stringify(user));
+
             // Reset form
             setUserSignup({
                 name: "",
