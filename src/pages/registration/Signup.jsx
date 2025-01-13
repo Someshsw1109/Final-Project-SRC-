@@ -4,10 +4,8 @@ import myContext from "../../context/myContext";
 import { Timestamp, addDoc, collection } from "firebase/firestore";
 import { auth, fireDB } from "../../firebase/FirebaseConfig";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import toast from "react-hot-toast";
 import Loader from "../../components/loader/Loader";
-import countryCodes from "../../utils/countryCodes"; // Import country codes list
 
 const Signup = () => {
     const context = useContext(myContext);
@@ -20,67 +18,8 @@ const Signup = () => {
         name: "",
         email: "",
         password: "",
-        phone: "",
-        countryCode: "+1", // Default country code
-        role: "user",
+        role: "user", // Default role
     });
-
-    // OTP State
-    const [otp, setOtp] = useState("");
-    const [showOtpInput, setShowOtpInput] = useState(false);
-    const [confirmationResult, setConfirmationResult] = useState(null);
-
-    /**========================================================================
-     *                          Phone Verification
-    *========================================================================**/
-    const setupRecaptcha = () => {
-        // Ensure that RecaptchaVerifier is correctly initialized
-        window.recaptchaVerifier = new RecaptchaVerifier(
-            "recaptcha-container",
-            { size: "invisible", callback: (response) => {} },
-            auth
-        );
-    };
-
-    const sendPhoneVerification = async () => {
-        if (userSignup.phone === "") {
-            toast.error("Phone number is required for verification");
-            return;
-        }
-
-        try {
-            setupRecaptcha();
-            const appVerifier = window.recaptchaVerifier;
-            const fullPhoneNumber = `${userSignup.countryCode}${userSignup.phone}`;
-            
-            // Debugging log
-            console.log("Sending OTP to:", fullPhoneNumber);
-
-            const result = await signInWithPhoneNumber(auth, fullPhoneNumber, appVerifier);
-            setConfirmationResult(result);
-            setShowOtpInput(true);
-            toast.success("OTP sent to your phone");
-        } catch (error) {
-            console.error("Error during phone verification:", error);
-            toast.error("Failed to send OTP. Please try again.");
-        }
-    };
-
-    const verifyOtp = async () => {
-        if (otp.length === 0) {
-            toast.error("Please enter the OTP");
-            return;
-        }
-
-        try {
-            await confirmationResult.confirm(otp);
-            toast.success("Phone number verified successfully");
-            handleSignup(); // Proceed with signup after phone verification
-        } catch (error) {
-            console.error("OTP verification failed:", error);
-            toast.error("Invalid OTP. Please try again.");
-        }
-    };
 
     /**========================================================================
      *                          User Signup Function
@@ -107,7 +46,6 @@ const Signup = () => {
                 name: userSignup.name,
                 email: userCredential.user.email,
                 uid: userCredential.user.uid,
-                phone: `${userSignup.countryCode}${userSignup.phone}`,
                 role: userSignup.role,
                 time: Timestamp.now(),
                 date: new Date().toLocaleString("en-US", {
@@ -129,12 +67,9 @@ const Signup = () => {
                 name: "",
                 email: "",
                 password: "",
-                phone: "",
-                countryCode: "+1",
                 role: "user",
             });
 
-            setOtp("");
             toast.success("Signup Successful");
             navigate("/login");
         } catch (error) {
@@ -188,62 +123,24 @@ const Signup = () => {
 
                 <div className="mb-3">
                     <select
-                        value={userSignup.countryCode}
-                        onChange={(e) => setUserSignup({ ...userSignup, countryCode: e.target.value })}
+                        value={userSignup.role}
+                        onChange={(e) => setUserSignup({ ...userSignup, role: e.target.value })}
                         className="bg-pink-50 border border-pink-200 px-2 py-2 w-96 rounded-md outline-none text-pink-500 font-bold"
                     >
-                        {countryCodes.map((country) => (
-                            <option key={country.code} value={country.dial_code}>
-                                {country.name} ({country.dial_code})
-                            </option>
-                        ))}
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
                     </select>
                 </div>
 
-                <div className="mb-3">
-                    <input
-                        type="tel"
-                        placeholder="Phone Number"
-                        value={userSignup.phone}
-                        onChange={(e) => setUserSignup({ ...userSignup, phone: e.target.value })}
-                        className="bg-pink-50 border border-pink-200 px-2 py-2 w-96 rounded-md outline-none placeholder-pink-200"
-                    />
+                <div className="mb-5">
+                    <button
+                        type="button"
+                        onClick={handleSignup}
+                        className="bg-blue-500 hover:bg-blue-600 w-full text-white text-center py-2 font-bold rounded-md"
+                    >
+                        Signup
+                    </button>
                 </div>
-
-                {!showOtpInput && (
-                    <div className="mb-5">
-                        <button
-                            type="button"
-                            onClick={sendPhoneVerification}
-                            className="bg-blue-500 hover:bg-blue-600 w-full text-white text-center py-2 font-bold rounded-md"
-                        >
-                            Verify Phone Number
-                        </button>
-                    </div>
-                )}
-
-                {showOtpInput && (
-                    <div className="mb-3">
-                        <input
-                            type="text"
-                            placeholder="Enter OTP"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
-                            className="bg-pink-50 border border-pink-200 px-2 py-2 w-96 rounded-md outline-none placeholder-pink-200"
-                        />
-                        <div className="mt-3">
-                            <button
-                                type="button"
-                                onClick={verifyOtp}
-                                className="bg-green-500 hover:bg-green-600 w-full text-white text-center py-2 font-bold rounded-md"
-                            >
-                                Verify OTP
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                <div id="recaptcha-container"></div>
 
                 <div>
                     <h2 className="text-black">
