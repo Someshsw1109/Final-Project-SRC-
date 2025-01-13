@@ -24,7 +24,7 @@ const AdminDashboard = () => {
             {/* Sidebar */}
             <div className="hidden md:flex w-64 flex-col fixed h-screen bg-pink-500 text-white">
                 <div className="p-4">
-                    <h1 className="text-2xl font-bold mb-8">Adminify</h1>
+                    <h1 className="text-2xl font-bold mb-8">SRC Mart</h1>
                     <div className="flex items-center space-x-3 mb-8">
                         <img 
                             src={user?.photoURL || "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/adminfy-A6G3wYER4AFhamlxVMiINYyxFG6cCX.png"} 
